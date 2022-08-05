@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class ResourceBar : MonoBehaviour 
 {
-    private static float maxResources = 100;
+    private static float maxResources = 60;
     private static float currentResources;
     private static float regenerationSpeed;
     private static float windScale;
@@ -14,6 +14,8 @@ public class ResourceBar : MonoBehaviour
     public Slider resourceBar;
 
     public static ResourceBar instance;
+
+    public SquallUI squallUI;
 
     private void Awake() 
     {
@@ -25,9 +27,9 @@ public class ResourceBar : MonoBehaviour
         currentResources = maxResources;
         resourceBar.maxValue = maxResources;
         resourceBar.value = maxResources;
-        regenerationSpeed = 3f;
+        regenerationSpeed = 1.5f;
 
-        windScale = 0.5f;
+        windScale = 0.3f;
         
         // run void regeneration() every 1s after 1s delay
         InvokeRepeating("regeneration", 1f, 1f);
@@ -49,10 +51,15 @@ public class ResourceBar : MonoBehaviour
     }
 
     // increase resource bar when items are used
-    public void addResource(int addition)
+    public void addResource(float addition)
     {
         currentResources += addition;
         currentResources = Math.Min(currentResources, maxResources);
+    }
+
+    public void maxResource()
+    {
+        addResource((int) maxResources);
     }
 
     // reduce resource bar when collision happens
@@ -62,6 +69,11 @@ public class ResourceBar : MonoBehaviour
         currentResources -= amount;
         currentResources = Math.Max(currentResources, 0);
         resourceBar.value = currentResources;
+    }
+
+    public SquallUI getSquall()
+    {
+        return squallUI;
     }
 
     // get current amount of resources
@@ -82,6 +94,11 @@ public class ResourceBar : MonoBehaviour
         maxResources = capacity;
     }
 
+    public float getCapacity()
+    {
+        return maxResources;
+    }
+
     // increase resource bar capacity
     public void increaseCapacity(int increase)
     {
@@ -95,9 +112,14 @@ public class ResourceBar : MonoBehaviour
     }
 
     // set resource bar regeneration speed
-    public void setRegenerationSpeed(int regeneration)
+    public void setRegenerationSpeed(float regeneration)
     {
         regenerationSpeed = regeneration;
+    }
+
+    public float getRegenerationSpeed()
+    {
+        return regenerationSpeed;
     }
 
     // increase resource bar regeneration speed

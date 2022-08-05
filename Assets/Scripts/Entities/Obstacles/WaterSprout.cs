@@ -4,9 +4,17 @@ using UnityEngine;
 
 public class WaterSprout : Obstacle
 {
+    public static FMOD.Studio.EventInstance Spout;
+
+    public Animator anim;
+
     // Start is called before the first frame update
     void Start()
     {
+        Spout = FMODUnity.RuntimeManager.CreateInstance("event:/SFX/Splash");
+
+        Physics2D.IgnoreLayerCollision(6, 7, true);
+        anim.SetBool("dying", false);
     }
 
     // Update is called once per frame
@@ -20,9 +28,16 @@ public class WaterSprout : Obstacle
         {
             if (wind.getForce() > 2)
             {
-                //Play animation before destroying object
-                Destroy(this.gameObject);
+                die();
+                Spout.start();
+
             }
-        }
+        } 
+    }
+    public void die()
+    {
+        //get rid of collider
+        Destroy(GetComponent<Collider2D>());
+        anim.SetBool("dying", true);
     }
 }

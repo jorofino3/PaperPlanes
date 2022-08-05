@@ -18,10 +18,16 @@ public class DrawStraightLine : MonoBehaviour
     public ResourceBar resourceBar;
     public PauseMenu pause;
 
-    public float strength;
+    private float strength = .5f;
+    private float baseValue = 2f;
     void Start()
     {
-        strength = 0.2f;
+        //baseValue = 5;
+        if (strength == 0) {
+            strength = 0.5f;
+        }
+        //strength = 0.5f;
+
     }
 
     // Update is called once per frame
@@ -79,7 +85,8 @@ public class DrawStraightLine : MonoBehaviour
 
                 ResourceBar.instance.windResourceUsage(windLength);
 
-                addColliderToLine();
+                addColliderToLine(windLength, line.GetPosition(0), line.GetPosition(1));
+                // line.SetWidth(0.5f, 0.5f);
 
             }
         }
@@ -91,38 +98,37 @@ public class DrawStraightLine : MonoBehaviour
         currentLine = Instantiate(WindPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         positions.Clear();
         line = currentLine.GetComponent<LineRenderer>();
-        line.SetWidth(2f, 2f);
         line.material.SetColor("_Color", new Color(1f, 1f, 1f, 0.3f));
 
         line.useWorldSpace = true;
 
     }
 
-    void addColliderToLine()
+    void addColliderToLine(float lineLength, Vector3 start, Vector3 end)
     {
         GameObject wind = new GameObject("WindCollider");
         WindCurrent windcurrent = wind.AddComponent<WindCurrent>();
 
-        windcurrent.force = (mousePos - startMousePos).magnitude * strength;
+        windcurrent.force = baseValue + (end - start).magnitude * strength;
 
         BoxCollider2D col = wind.AddComponent<BoxCollider2D>();
 
         col.isTrigger = true;
         col.transform.SetParent(currentLine.GetComponent<LineRenderer>().transform);
-        float lineLength = Vector3.Distance(startMousePos, mousePos); // length of line
+        //float lineLength = Vector3.Distance(startMousePos, mousePos); // length of line
         col.size = new Vector2(lineLength, 2f); // size of collider is set where X is length of line, Y is width of line, Z will be set as per requirement
-        Vector3 midPoint = (startMousePos + mousePos) / 2;
+        Vector3 midPoint = (start + end) / 2;
         currentLine.transform.position = midPoint;
         col.transform.position = midPoint; // setting position of collider object
         // Following lines calculate the angle between startPos and endPos
-        float angle = (Mathf.Abs(startMousePos.y - mousePos.y) / Mathf.Abs(startMousePos.x - mousePos.x));
-        if ((startMousePos.y < mousePos.y && startMousePos.x > mousePos.x) || (mousePos.y < startMousePos.y && mousePos.x > startMousePos.x))
+        float angle = (Mathf.Abs(start.y - end.y) / Mathf.Abs(start.x - end.x));
+        if ((start.y < end.y && start.x > end.x) || (end.y < start.y && end.x > start.x))
         {
             angle *= -1;
         }
         angle = Mathf.Rad2Deg * Mathf.Atan(angle);
-        //print(angle);
-        col.transform.Rotate(0, 0, angle);
-
+        if(windLength > 0) {
+            col.transform.Rotate(0, 0, angle);
+        }
     }
 }
