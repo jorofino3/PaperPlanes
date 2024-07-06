@@ -52,7 +52,15 @@ public class Platform : MonoBehaviour
                 StartCoroutine(FadeInIObject());
                 summoned = true;
             }
-        } 
+        }
+        
+        if (canRelaunch)
+        {
+            //find player
+            GameObject player = GameObject.FindWithTag("Player");
+            player.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+
+        }
 
         if (canRelaunch && Input.GetKeyDown(KeyCode.A))
         {
@@ -77,6 +85,10 @@ public class Platform : MonoBehaviour
             {
                 Rigidbody2D rb = other.gameObject.GetComponent<Rigidbody2D>();
                 this.GetComponent<Renderer>().enabled = true;
+
+                //set the plane to be able to land
+                Plane plane = other.gameObject.GetComponent<Plane>();
+                plane.setCanLanding(this.transform.position);
             } else
             {
                 Destroy(this.gameObject);
@@ -107,7 +119,7 @@ public class Platform : MonoBehaviour
     }
 
     IEnumerator TaskOnClick(){
-        //Destorys the Platform
+        //Destroys the Platform
         yield return new WaitForSeconds(0.4f);
         PlatformManager.cutSceneDone = true; //Sets that the CutSceneis Done and Player wants to fly
         Destroy(this.gameObject);
@@ -118,14 +130,18 @@ public class Platform : MonoBehaviour
     //while object is not fully transparent, gradually change transparency
     public IEnumerator FadeInIObject()
     {
-        Color objColor = this.GetComponent<Renderer>().material.color;
-        objColor.a = 0;
+        if (this.GetComponent<Renderer>().enabled)
+        {
+            Color objColor = this.GetComponent<Renderer>().material.color;
+            objColor.a = 0;
 
-        while (objColor.a < 1) {
-            float fadeAmount = objColor.a + (fadeSpeed * Time.deltaTime * 10);
-            objColor = new Color(objColor.r, objColor.g, objColor.b, fadeAmount);
-            this.GetComponent<Renderer>().material.color = objColor;
-            yield return null;
+            while (objColor.a < 1)
+            {
+                float fadeAmount = objColor.a + (fadeSpeed * Time.deltaTime * 10);
+                objColor = new Color(objColor.r, objColor.g, objColor.b, fadeAmount);
+                this.GetComponent<Renderer>().material.color = objColor;
+                yield return null;
+            }
         }
 
     }
